@@ -1,0 +1,5 @@
+recruitertriage>=0.1.0
+gradio>=4.40
+transformers>=4.44
+torch>=2.2
+accelerate>=0.30
