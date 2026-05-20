@@ -1,5 +1,9 @@
 # recruitertriage
 
+[![PyPI](https://img.shields.io/pypi/v/recruitertriage.svg)](https://pypi.org/project/recruitertriage/)
+
+![demo](docs/demo.gif)
+
 Triage recruiter outreach with a small (<1B) language model. Built
 for the [HuggingFace Build Small Hackathon][bs].
 
