@@ -85,7 +85,7 @@ SAMPLES = [
 ]
 
 
-with gr.Blocks(title="recruitertriage", theme="soft") as demo:
+with gr.Blocks(title="recruitertriage") as demo:
     gr.Markdown(
         "# recruitertriage\n"
         "Triage recruiter outreach with a small (<1B) language model. "
@@ -115,4 +115,4 @@ with gr.Blocks(title="recruitertriage", theme="soft") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(theme="soft")
