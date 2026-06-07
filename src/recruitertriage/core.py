@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, Iterable
@@ -74,25 +73,62 @@ def _build_prompt(subject: str, body: str, hints: dict[str, object] | None) -> s
 # ---- parsing --------------------------------------------------------------
 
 
-_JSON_RE = re.compile(r"\{.*?\}", re.DOTALL)
+def _first_json_object(text: str) -> str | None:
+    """Return the first balanced ``{...}`` substring in ``text``.
+
+    Unlike a naive ``\\{.*?\\}`` regex, this walks the string and matches
+    braces so that *nested* objects (e.g. ``{"a": {"b": 1}}``) are kept
+    whole instead of being truncated at the first inner ``}``. String
+    literals are tracked so that braces inside quoted values don't throw
+    off the depth count.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(text)):
+        ch = text[i]
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+    return None
 
 
 def _parse_llm_json(raw: str) -> dict | None:
     """Pull the first JSON object out of a model's free-form text.
 
     Small models love to wrap things in prose, code fences, or extra
-    commentary. Find the first {...} block and try to parse it."""
+    commentary. We first try to parse the whole string (well-behaved
+    model), then fall back to extracting the first *balanced* ``{...}``
+    block and parsing that. Returns ``None`` if nothing usable is found.
+    """
     # try whole-string first (well-behaved model)
     raw = raw.strip()
     try:
         return json.loads(raw)
     except Exception:
         pass
-    m = _JSON_RE.search(raw)
-    if not m:
+    candidate = _first_json_object(raw)
+    if candidate is None:
         return None
     try:
-        return json.loads(m.group(0))
+        return json.loads(candidate)
     except Exception:
         return None
 

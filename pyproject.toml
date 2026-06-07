@@ -40,7 +40,10 @@ dependencies = []
 [project.optional-dependencies]
 smollm = ["transformers>=4.44", "torch>=2.2", "accelerate>=0.30"]
 space  = ["gradio>=4.40", "transformers>=4.44", "torch>=2.2", "accelerate>=0.30"]
-dev    = ["pytest>=8.0", "ruff>=0.4"]
+# Tests use the standard-library `unittest` (run: python -m unittest
+# discover -s tests), so no test runner is required. `ruff` is optional
+# for linting/formatting.
+dev    = ["ruff>=0.4"]
 
 [project.urls]
 Homepage = "https://github.com/MukundaKatta/recruitertriage"
